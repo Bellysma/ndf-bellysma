@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notes de Frais Kilométriques – Bellysma Assurances</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+  :root {
+    --blue:#185FA5;--blue-light:#E6F1FB;--blue-mid:#378ADD;--blue-dark:#0C447C;
+    --teal:#0F6E56;--teal-light:#E1F5EE;--amber:#BA7517;--amber-light:#FAEEDA;
+    --red:#A32D2D;--red-light:#FCEBEB;--green:#3B6D11;--green-light:#EAF3DE;
+    --gray:#5F5E5A;--gray-light:#F1EFE8;--gray-dark:#2C2C2A;
+    --border:rgba(0,0,0,0.1);--bg:#F8F7F4;--surface:#FFFFFF;
+    --text:#1a1a18;--text-muted:#5F5E5A;--radius:10px;--radius-lg:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;}
+  .app-header{background:var(--blue-dark);color:white;padding:18px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:10px;}
+  .app-header h1{font-size:17px;font-weight:500;letter-spacing:.01em;}
+  .container{max-width:1100px;margin:0 auto;padding:28px 24px;display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start;}
+  .panel{background:var(--surface);border-radius:var(--radius-lg);border:.5px solid var(--border);overflow:hidden;}
+  .panel-header{padding:14px 20px;border-bottom:.5px solid var(--border);display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--blue-dark);background:var(--blue-light);}
+  .panel-body{padding:18px 20px;}
+  label{display:block;font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;}
+  input,select,textarea{width:100%;padding:8px 11px;border:.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:14px;background:var(--bg);color:var(--text);outline:none;transition:border-color .15s;}
+  input:focus,select:focus,textarea:focus{border-color:var(--blue-mid);background:white;}
+  .field{margin-bottom:14px;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--radius);border:none;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
+  .btn-primary{background:var(--blue);color:white;}.btn-primary:hover{background:var(--blue-dark);}
+  .btn-success{background:var(--green);color:white;}.btn-success:hover{background:#27500A;}
+  .btn-outline{background:white;color:var(--blue);border:.5px solid var(--blue-mid);}.btn-outline:hover{background:var(--blue-light);}
+  .btn-warn{background:var(--amber-light);color:var(--amber);border:.5px solid rgba(186,117,23,.3);}.btn-warn:hover{background:#FAC775;}
+  .btn-full{width:100%;justify-content:center;margin-top:6px;}
+  .vehicle-info{background:var(--green-light);border:.5px solid rgba(59,109,17,.2);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+  .vehicle-info .v-icon{font-size:28px;}
+  .vehicle-info .v-detail{font-size:13px;font-weight:500;color:var(--green);}
+  .vehicle-info .v-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+  .toggle-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .toggle-row label{margin:0;text-transform:none;font-size:13px;}
+  .toggle{position:relative;width:36px;height:20px;flex-shrink:0;}
+  .toggle input{opacity:0;width:0;height:0;}
+  .toggle-slider{position:absolute;cursor:pointer;inset:0;border-radius:20px;background:#D3D1C7;transition:.2s;}
+  .toggle-slider:before{content:"";position:absolute;height:14px;width:14px;left:3px;bottom:3px;border-radius:50%;background:white;transition:.2s;}
+  .toggle input:checked+.toggle-slider{background:var(--blue);}
+  .toggle input:checked+.toggle-slider:before{transform:translateX(16px);}
+  .km-display{background:var(--blue-light);border-radius:var(--radius);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border:.5px solid rgba(24,95,165,.2);}
+  .km-display .km-label{font-size:12px;color:var(--blue-dark);font-weight:500;}
+  .km-display .km-value{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--blue);}
+  .km-display .km-unit{font-size:12px;color:var(--blue-dark);}
+  #loading-km{font-size:12px;color:var(--blue);display:none;}
+  .ik-preview{background:var(--green-light);border:.5px solid rgba(59,109,17,.2);border-radius:var(--radius);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .ik-preview .ik-label{font-size:12px;color:var(--green);font-weight:500;}
+  .ik-preview .ik-value{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--green);}
+  .ik-preview .ik-unit{font-size:12px;color:var(--green);}
+  .table-wrapper{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead tr{background:var(--bg);}
+  th{padding:10px 12px;text-align:left;font-size:11px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:.5px solid var(--border);}
+  td{padding:10px 12px;border-bottom:.5px solid var(--border);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:var(--bg);}
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;}
+  .badge-green{background:var(--green-light);color:var(--green);}
+  .td-mono{font-family:'DM Mono',monospace;font-size:13px;}
+  .delete-btn{background:none;border:none;cursor:pointer;color:var(--red);font-size:15px;padding:2px 6px;border-radius:6px;transition:background .15s;}
+  .delete-btn:hover{background:var(--red-light);}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+  .stat-card{background:var(--surface);border-radius:var(--radius);border:.5px solid var(--border);padding:14px 16px;}
+  .stat-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+  .stat-value{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--text);}
+  .stat-value.highlight{color:var(--blue);}
+  .stat-value.green{color:var(--green);}
+  .stat-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+  .month-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+  .month-nav{display:flex;align-items:center;gap:8px;}
+  .month-nav select{width:auto;}
+  .month-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .annexe-tag{display:inline-flex;align-items:center;gap:5px;background:var(--amber-light);color:var(--amber);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:500;}
+  .annual-card{background:var(--bg);border-radius:var(--radius);padding:12px 14px;border:.5px solid var(--border);}
+  .progress-track{background:#D3D1C7;border-radius:4px;height:5px;margin-top:8px;overflow:hidden;}
+  .progress-fill{background:var(--green);height:100%;border-radius:4px;transition:width .4s;}
+  .empty-state{text-align:center;padding:48px 24px;color:var(--text-muted);}
+  .empty-state .ico{font-size:36px;margin-bottom:10px;opacity:.4;}
+  .section-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;padding-bottom:8px;border-bottom:.5px solid var(--border);}
+  /* ── Modals standard ── */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(12,68,124,.55);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:white;border-radius:var(--radius-lg);padding:28px 28px 24px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(12,68,124,.18);}
+  .modal h2{font-size:16px;font-weight:600;margin-bottom:20px;}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+  /* ── Wizard onboarding ── */
+  .wizard-overlay{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#0C447C 0%,#185FA5 50%,#0F6E56 100%);z-index:300;align-items:center;justify-content:center;}
+  .wizard-overlay.open{display:flex;}
+  .wizard-card{background:white;border-radius:20px;width:520px;max-width:95vw;max-height:92vh;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.28);display:flex;flex-direction:column;}
+  .wizard-header{background:linear-gradient(135deg,#0C447C,#185FA5);padding:28px 32px 24px;color:white;position:relative;flex-shrink:0;}
+  .wizard-logo{font-size:11px;font-weight:600;letter-spacing:.12em;opacity:.7;margin-bottom:16px;text-transform:uppercase;}
+  .wizard-header h2{font-size:22px;font-weight:600;margin-bottom:6px;line-height:1.3;}
+  .wizard-header p{font-size:13px;opacity:.8;line-height:1.5;}
+  .wizard-steps{display:flex;gap:8px;margin-top:20px;}
+  .wizard-step-dot{height:4px;border-radius:2px;background:rgba(255,255,255,.3);flex:1;transition:background .35s;}
+  .wizard-step-dot.active{background:white;}
+  .wizard-step-dot.done{background:rgba(255,255,255,.65);}
+  .wizard-body{padding:28px 32px;overflow-y:auto;flex:1;}
+  .wizard-footer{padding:16px 32px 24px;display:flex;gap:10px;justify-content:flex-end;border-top:.5px solid var(--border);flex-shrink:0;}
+  .wizard-field{margin-bottom:18px;}
+  .wizard-field label{display:block;font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;}
+  .wizard-field input,.wizard-field select{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:15px;background:var(--bg);color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s;}
+  .wizard-field input:focus,.wizard-field select:focus{border-color:var(--blue-mid);background:white;box-shadow:0 0 0 3px rgba(55,138,221,.12);}
+  .wizard-field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .wizard-preview{background:linear-gradient(135deg,var(--blue-light),var(--teal-light));border-radius:var(--radius);padding:14px 16px;margin-top:6px;border:.5px solid rgba(24,95,165,.15);}
+  .wizard-preview-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--blue-dark);opacity:.7;margin-bottom:4px;}
+  .wizard-preview-value{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--blue-dark);}
+  .wizard-vehicle-card{border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+  .wizard-vehicle-card:hover{border-color:var(--blue-mid);background:var(--blue-light);}
+  .wizard-vehicle-card.selected{border-color:var(--blue);background:var(--blue-light);box-shadow:0 0 0 3px rgba(24,95,165,.1);}
+  .wizard-vehicle-icon{font-size:28px;flex-shrink:0;}
+  .wizard-vehicle-name{font-size:14px;font-weight:600;color:var(--text);}
+  .wizard-vehicle-sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
+  .wizard-drive-btn{width:100%;padding:14px;border-radius:var(--radius);border:2px solid var(--blue-mid);background:white;font-family:inherit;font-size:14px;font-weight:500;color:var(--blue);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;margin-bottom:10px;}
+  .wizard-drive-btn:hover{background:var(--blue-light);border-color:var(--blue);}
+  .wizard-drive-btn.connected-state{border-color:var(--green);color:var(--green);background:var(--green-light);}
+  .wizard-skip{text-align:center;font-size:12px;color:var(--text-muted);cursor:pointer;padding:8px;text-decoration:underline;text-underline-offset:2px;}
+  .wizard-skip:hover{color:var(--text);}
+  /* ── Sync dot ── */
+  .sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;}
+  .sync-dot.connected{background:var(--green);}
+  .sync-dot.disconnected{background:#D3D1C7;}
+  .sync-dot.syncing{background:var(--amber);animation:pulse 1s infinite;}
+  .sync-dot.error{background:var(--red);}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  @keyframes wizardIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+  @media(max-width:900px){.container{grid-template-columns:1fr;}.stats-grid{grid-template-columns:repeat(2,1fr);}.app-header{padding:14px 18px;}.app-header h1{font-size:15px;}}
+  @media(max-width:480px){.stats-grid{grid-template-columns:1fr 1fr;}.container{padding:16px 12px;}}
+  @media print{.app-header,.panel:first-child,.month-actions,.delete-btn{display:none!important;}.container{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div>
+    <h1>Notes de Frais Kilométriques</h1>
+    <span id="header-user-label">Bellysma Assurances</span>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+    <span id="header-ref" style="font-family:'DM Mono',monospace;font-size:12px;background:rgba(255,255,255,.15);padding:4px 10px;border-radius:6px;"></span>
+    <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+      <div class="sync-dot disconnected" id="sync-dot"></div>
+      <span id="sync-label" style="opacity:.8;">Non connecté</span>
+      <button id="btn-gdrive-header" onclick="gdriveConnect()" style="padding:5px 12px;font-size:12px;background:rgba(255,255,255,.15);color:white;border:.5px solid rgba(255,255,255,.3);border-radius:8px;cursor:pointer;font-family:inherit;">🔗 Drive</button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div>
+    <div class="panel">
+      <div class="panel-header"><span class="ico">➕</span> Nouveau trajet</div>
+      <div class="panel-body">
+        <div class="field"><label>Date</label><input type="date" id="trip-date"></div>
+
+        <!-- Véhicule unique : Toyota RAV4 — affiché en informatif, non modifiable -->
+        <div class="vehicle-info">
+          <span class="v-icon">🚙</span>
+          <div>
+            <div class="v-detail">Toyota RAV4 — 9 CV · Thermique (GO)</div>
+            <div class="v-sub">Taux fixe : 0,470 EUR/km · Barème DGFiP 2025</div>
+          </div>
+        </div>
+
+        <div class="field"><label>Départ</label><input type="text" id="trip-from" placeholder="Ex : Rouen (76000)" oninput="onAddressChange()"></div>
+        <div class="field"><label>Arrivée</label><input type="text" id="trip-to" placeholder="Ex : Le Havre (76600)" oninput="onAddressChange()"></div>
+        <div class="toggle-row">
+          <label class="toggle"><input type="checkbox" id="toggle-ar" onchange="onToggleAR()"><span class="toggle-slider"></span></label>
+          <label for="toggle-ar" style="cursor:pointer;">Aller-retour (x2)</label>
+        </div>
+        <div class="km-display">
+          <div><div class="km-label">Distance calculée</div><div id="loading-km">Calcul en cours...</div></div>
+          <div style="display:flex;align-items:baseline;gap:5px;"><span class="km-value" id="display-km">-</span><span class="km-unit">km</span></div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label>Ou saisir les km manuellement</label>
+          <input type="number" id="trip-km-manual" placeholder="Saisie manuelle (optionnel)" min="0" step="1" oninput="onManualKm()">
+        </div>
+        <!-- Aperçu IK en temps réel -->
+        <div class="ik-preview" id="ik-preview" style="display:none;">
+          <div><div class="ik-label">Indemnité calculée</div></div>
+          <div style="display:flex;align-items:baseline;gap:5px;"><span class="ik-value" id="preview-ik">0,00</span><span class="ik-unit">EUR</span></div>
+        </div>
+        <div class="field"><label>Motif du déplacement</label><input type="text" id="trip-motif" placeholder="Ex : Visite client AXA Rouen"></div>
+        <div class="section-title" style="margin-top:4px;">Frais annexes (optionnel)</div>
+        <div class="field-row">
+          <div class="field"><label>Péage (EUR)</label><input type="number" id="trip-peage" placeholder="0.00" min="0" step="0.01"></div>
+          <div class="field"><label>Parking (EUR)</label><input type="number" id="trip-parking" placeholder="0.00" min="0" step="0.01"></div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="addTrip()">+ Ajouter ce trajet</button>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px;">
+      <div class="panel-header"><span class="ico">📊</span> <span id="annual-panel-header">Suivi annuel — Toyota RAV4</span></div>
+      <div class="panel-body"><div id="annual-summary"></div></div>
+    </div>
+
+    <div class="panel" style="margin-top:16px;">
+      <div class="panel-header"><span class="ico">☁️</span> Google Drive</div>
+      <div class="panel-body">
+        <div id="gdrive-disconnected">
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Connectez Google Drive pour synchroniser vos données sur tous vos appareils (PC, téléphone, tablette).</p>
+          <button class="btn btn-outline btn-full" onclick="gdriveConnect()">🔗 Se connecter à Google Drive</button>
+        </div>
+        <div id="gdrive-connected" style="display:none;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px 14px;background:var(--green-light);border-radius:var(--radius);border:.5px solid rgba(59,109,17,.2);">
+            <span style="font-size:20px;">✅</span>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--green);">Connecté à Google Drive</div>
+              <div style="font-size:11px;color:var(--text-muted);" id="gdrive-email-display"></div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Fichier : <code id="gdrive-filename-label" style="background:var(--bg);padding:2px 6px;border-radius:4px;font-size:11px;"></code></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+            <button class="btn btn-outline" onclick="syncFromDrive()" style="justify-content:center;">⬇ Récupérer</button>
+            <button class="btn btn-primary" onclick="syncToDrive()" style="justify-content:center;">⬆ Sauvegarder</button>
+          </div>
+          <button class="btn btn-warn btn-full" onclick="gdriveDisconnect()">🔌 Déconnecter</button>
+          <button class="btn btn-outline btn-full" onclick="showWizard(null)" style="margin-top:6px;font-size:12px;">✏️ Modifier mon profil / véhicule</button>
+          <div id="last-sync-label" style="font-size:11px;color:var(--text-muted);margin-top:8px;text-align:center;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="month-bar">
+      <div class="month-nav">
+        <button class="btn btn-outline" onclick="changeMonth(-1)">◀</button>
+        <select id="month-select" onchange="changeMonthSelect()" style="font-weight:500;font-size:14px;"></select>
+        <select id="year-select" onchange="changeMonthSelect()" style="font-weight:500;font-size:14px;"></select>
+        <button class="btn btn-outline" onclick="changeMonth(1)">▶</button>
+      </div>
+      <div class="month-actions">
+        <button class="btn btn-outline" onclick="openValidation()">✍️ Valider</button>
+        <button class="btn btn-success" onclick="exportPDF()">⬇ PDF</button>
+      </div>
+    </div>
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="panel">
+      <div class="panel-header"><span class="ico">🗂️</span> Trajets du mois</div>
+      <div class="panel-body" style="padding:0;">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Date</th><th>Trajet</th><th>Motif</th><th>Km</th><th>Indemnité</th><th>Annexes</th><th></th></tr></thead>
+            <tbody id="trips-table"></tbody>
+          </table>
+          <div id="empty-state" class="empty-state"><div class="ico">🗺️</div><div>Aucun trajet ce mois-ci</div><div style="font-size:12px;margin-top:4px;">Ajoutez votre premier déplacement</div></div>
+        </div>
+      </div>
+    </div>
+    <div id="validation-bar" style="display:none;margin-top:12px;" class="panel">
+      <div class="panel-body" style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">
+        <span>✅ Validé par : <strong id="val-name-display"></strong></span>
+        <span style="color:var(--text-muted);" id="val-date-display"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     WIZARD ONBOARDING — 3 étapes
+     Étape 1 : Identité   Étape 2 : Véhicule   Étape 3 : Drive
+     ══════════════════════════════════════════ -->
+<div class="wizard-overlay" id="wizard-overlay">
+  <div class="wizard-card" id="wizard-card">
+
+    <!-- EN-TÊTE dynamique -->
+    <div class="wizard-header">
+      <div class="wizard-logo">Bellysma Assurances · Configuration</div>
+      <h2 id="wizard-title">Bienvenue !</h2>
+      <p id="wizard-subtitle">Configurez votre profil en 3 étapes rapides.</p>
+      <div class="wizard-steps">
+        <div class="wizard-step-dot active" id="wdot-1"></div>
+        <div class="wizard-step-dot" id="wdot-2"></div>
+        <div class="wizard-step-dot" id="wdot-3"></div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 1 — Identité -->
+    <div id="wizard-step-1" class="wizard-body">
+      <div style="font-size:32px;margin-bottom:16px;">👤</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:4px;">Votre identité</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:22px;">Ces informations apparaîtront sur vos notes de frais et dans le nom des fichiers.</div>
+      <div class="wizard-field-row">
+        <div class="wizard-field">
+          <label>Prénom</label>
+          <input type="text" id="w-prenom" placeholder="Gregory" autocomplete="given-name" oninput="wizardUpdatePreview()">
+        </div>
+        <div class="wizard-field">
+          <label>Nom de famille</label>
+          <input type="text" id="w-nom" placeholder="VANDAELE" autocomplete="family-name" oninput="wizardUpdatePreview()">
+        </div>
+      </div>
+      <div class="wizard-field">
+        <label>Poste / Fonction</label>
+        <input type="text" id="w-poste" placeholder="Chargé de clientèle" autocomplete="organization-title">
+      </div>
+      <div class="wizard-preview">
+        <div class="wizard-preview-label">Référence de vos fichiers</div>
+        <div class="wizard-preview-value" id="w-preview-ref">NDF-2026-06-NOM.json</div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 2 — Véhicule -->
+    <div id="wizard-step-2" class="wizard-body" style="display:none;">
+      <div style="font-size:32px;margin-bottom:16px;">🚗</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:4px;">Votre véhicule</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:22px;">Ces données sont utilisées pour calculer vos indemnités kilométriques au taux DGFiP 2025.</div>
+      <div class="wizard-field-row">
+        <div class="wizard-field">
+          <label>Marque</label>
+          <input type="text" id="w-v-marque" placeholder="Toyota" oninput="wizardUpdateVehiclePreview()">
+        </div>
+        <div class="wizard-field">
+          <label>Modèle</label>
+          <input type="text" id="w-v-modele" placeholder="RAV4" oninput="wizardUpdateVehiclePreview()">
+        </div>
+      </div>
+      <div class="wizard-field-row">
+        <div class="wizard-field">
+          <label>Immatriculation</label>
+          <input type="text" id="w-v-immat" placeholder="GR-463-XW" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <div class="wizard-field">
+          <label>Puissance fiscale (CV)</label>
+          <select id="w-v-cv" onchange="wizardUpdateVehiclePreview()">
+            <option value="">-- Sélectionner --</option>
+            <option value="3">3 CV</option>
+            <option value="4">4 CV</option>
+            <option value="5">5 CV</option>
+            <option value="6">6 CV</option>
+            <option value="7" selected>7 CV et + (RAV4 9cv)</option>
+          </select>
+        </div>
+      </div>
+      <div class="wizard-field">
+        <label>Carburant</label>
+        <select id="w-v-carburant">
+          <option value="Thermique (Essence)">Essence</option>
+          <option value="Thermique (GO)" selected>Diesel (GO)</option>
+          <option value="Hybride">Hybride</option>
+          <option value="Électrique">Électrique (+20%)</option>
+        </select>
+      </div>
+      <div class="wizard-preview" id="w-vehicle-preview">
+        <div class="wizard-preview-label">Taux applicable DGFiP 2025</div>
+        <div class="wizard-preview-value" id="w-preview-vehicle">🚗 — · 0,470 €/km</div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 3 — Google Drive -->
+    <div id="wizard-step-3" class="wizard-body" style="display:none;">
+      <div style="font-size:32px;margin-bottom:16px;">☁️</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:4px;">Synchronisation Drive</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:22px;">Connectez votre Google Drive pour retrouver vos notes de frais sur tous vos appareils (PC, iPhone, tablette).</div>
+
+      <div id="w-drive-disconnected">
+        <button class="wizard-drive-btn" onclick="wizardConnectDrive()" id="w-drive-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.28 3h11.44l4.1 7.11L16.72 21H7.28L3.18 10.11 6.28 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M3.18 10.11h17.64M9.5 3l3.22 7.11L9.5 21M14.5 3l3.22 7.11L14.5 21" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          Se connecter à Google Drive
+        </button>
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--amber-light);border-radius:var(--radius);border:.5px solid rgba(186,117,23,.2);margin-top:4px;">
+          <span style="font-size:16px;">💡</span>
+          <div style="font-size:12px;color:var(--amber);">Votre NDF sera sauvegardée sous :<br><strong id="w-preview-filename" style="font-family:'DM Mono',monospace;font-size:11px;"></strong></div>
+        </div>
+      </div>
+      <div id="w-drive-connected" style="display:none;">
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--green-light);border-radius:var(--radius);border:.5px solid rgba(59,109,17,.2);">
+          <span style="font-size:22px;">✅</span>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--green);">Drive connecté</div>
+            <div style="font-size:12px;color:var(--text-muted);" id="w-drive-email"></div>
+          </div>
+        </div>
+      </div>
+      <div class="wizard-skip" onclick="wizardFinish(false)" style="margin-top:16px;">Passer cette étape — configurer Drive plus tard</div>
+    </div>
+
+    <!-- PIED DE PAGE -->
+    <div class="wizard-footer" id="wizard-footer">
+      <button class="btn btn-outline" id="wizard-btn-back" onclick="wizardBack()" style="display:none;">← Retour</button>
+      <button class="btn btn-primary" id="wizard-btn-next" onclick="wizardNext()">Continuer →</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-ndf-choice">
+  <div class="modal" style="text-align:center;">
+    <div style="font-size:32px;margin-bottom:12px;">☁️</div>
+    <h2 style="margin-bottom:8px;">Que souhaitez-vous faire ?</h2>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:6px;">Drive connecté — vos données sont disponibles.</p>
+    <p id="ndf-choice-filename" style="font-size:12px;color:var(--blue);font-family:'DM Mono',monospace;background:var(--blue-light);padding:4px 10px;border-radius:6px;display:inline-block;margin-bottom:20px;"></p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-primary btn-full" onclick="ndfChoiceResume()" style="font-size:14px;padding:12px 16px;">
+        ⬇ Reprendre cette note de frais
+      </button>
+      <button class="btn btn-outline btn-full" onclick="ndfChoiceNew()" style="font-size:14px;padding:12px 16px;">
+        ✨ Démarrer une nouvelle note de frais
+      </button>
+    </div>
+    <p style="font-size:11px;color:var(--text-muted);margin-top:16px;">
+      "Reprendre" charge vos trajets depuis Drive.<br>
+      "Nouvelle" repart d'une feuille vierge pour ce mois.
+    </p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-validation">
+  <div class="modal">
+    <h2>Valider la note de frais</h2>
+    <div class="field"><label>Validé par</label><input type="text" id="val-name" placeholder="Nom du responsable"></div>
+    <div class="field"><label>Date de validation</label><input type="date" id="val-date"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveValidation()">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var GOOGLE_CLIENT_ID="282482508903-k2p81ag84r22ub7vt4rsc58pabmk8781.apps.googleusercontent.com";
+var GOOGLE_SCOPES="https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email";
+// DRIVE_FILENAME est dynamique : NDF-AAAA-MM-NOM.json — calculé via getDriveFilename()
+
+// Taux unique : 0,470 EUR/km (barème DGFiP 2025 — voiture 7 CV et +, tranche 3)
+var TAUX_KM = 0.470;
+var VEHICLE = {key:"toyota", label:"Toyota RAV4 9cv", icon:"🚙"};
+
+function calcIK(km){ return km * TAUX_KM; }
+
+/* ══ GESTION UTILISATEUR ══ */
+function getUserNom(){ return localStorage.getItem("bellysma_user_nom")||""; }
+function getUserPrenom(){ return localStorage.getItem("bellysma_user_prenom")||""; }
+function isUserConfigured(){ return !!getUserNom() && !!getUserPrenom(); }
+
+/* Nom de fichier Drive dynamique pour un mois/année donnés */
+function getDriveFilename(year, month){
+  var nom=(getUserNom()||"USER").toUpperCase().replace(/\s+/g,"_");
+  return "NDF-"+year+"-"+String(month+1).padStart(2,"0")+"-"+nom+".json";
+}
+/* Clé de cache pour un mois/année */
+function getMonthCacheKey(year, month){
+  return year+"-"+String(month+1).padStart(2,"0")+"-"+(getUserNom()||"USER").toUpperCase();
+}
+
+var currentMonth, currentYear;
+var calculatedKm=0, manualMode=false;
+var gdriveToken=null, gdriveFileId=null, gdriveUserEmail="";
+/* Cache fileId par fichier mensuel pour éviter de rechercher à chaque fois */
+var gdriveFileIdCache={};
+
+/* Clé localStorage spécifique au mois en cours */
+function getLocalKey(){
+  return "bellysma_ndf_"+currentYear+"_"+String(currentMonth+1).padStart(2,"0")+"_"+(getUserNom()||"user").toLowerCase();
+}
+function loadLocal(){
+  try{ return JSON.parse(localStorage.getItem(getLocalKey())||"{}"); }catch(e){ return {}; }
+}
+function saveLocal(data){
+  localStorage.setItem(getLocalKey(), JSON.stringify(data));
+}
+var appData={trips:[],validations:{}};
+
+window.onload=function(){
+  var now=new Date();
+  currentMonth=now.getMonth(); currentYear=now.getFullYear();
+  document.getElementById("trip-date").value=now.toISOString().split("T")[0];
+  document.getElementById("val-date").value=now.toISOString().split("T")[0];
+
+  /* — Retour OAuth : token dans le hash — */
+  if(window.location.hash.indexOf("access_token")!==-1){
+    var wasInWizard = localStorage.getItem("bellysma_wizard_pending")==="1";
+    localStorage.removeItem("bellysma_wizard_pending");
+    if(!isFullyConfigured()){
+      showWizard(function(){ handleOAuthCallback(); });
+    } else {
+      handleOAuthCallback();
+      if(wasInWizard){
+        /* Retour OAuth depuis le wizard étape 3 : afficher Drive connecté dans wizard */
+        showWizard(null);
+        wizardGotoStep(3);
+      }
+    }
+    return;
+  }
+
+  /* — Premier lancement ou profil incomplet → wizard — */
+  if(!isFullyConfigured()){
+    showWizard(function(){ finishOnload(); });
+    return;
+  }
+  finishOnload();
+};
+
+function finishOnload(){
+  appData=loadLocal();
+  if(!appData.trips) appData.trips=[];
+  if(!appData.validations) appData.validations={};
+  buildMonthSelectors(); updateRef(); renderAll(); updateHeaderUser(); refreshVehicleDisplay();
+
+  /* — Restaurer session Drive — */
+  var st=localStorage.getItem("bellysma_gdrive_token");
+  var se=localStorage.getItem("bellysma_gdrive_email");
+  if(st){
+    gdriveToken=st; gdriveUserEmail=se||"";
+    try{ gdriveFileIdCache=JSON.parse(localStorage.getItem("bellysma_gdrive_fileid_cache")||"{}"); }catch(e){ gdriveFileIdCache={}; }
+    gdriveFileId=gdriveFileIdCache[getMonthCacheKey(currentYear,currentMonth)]||null;
+    if(!isTokenValid()){
+      gdriveToken=null; gdriveFileId=null;
+      localStorage.removeItem("bellysma_gdrive_token");
+      localStorage.removeItem("bellysma_gdrive_token_ts");
+      setSyncStatus("disconnected","Session expirée — reconnectez Drive");
+    } else {
+      setSyncStatus("connected","Drive connecté");
+      document.getElementById("gdrive-connected").style.display="block";
+      document.getElementById("gdrive-disconnected").style.display="none";
+      document.getElementById("gdrive-email-display").textContent=gdriveUserEmail;
+      document.getElementById("btn-gdrive-header").style.display="none";
+      showNdfChoiceModal();
+    }
+  }
+}
+
+function updateHeaderUser(){
+  var prenom=getUserPrenom(), nom=getUserNom();
+  var el=document.getElementById("header-user-label");
+  if(el && (prenom||nom)) el.textContent="Bellysma Assurances · "+prenom+" "+nom;
+}
+
+function buildMonthSelectors(){
+  var months=["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+  var ms=document.getElementById("month-select");
+  ms.innerHTML=months.map(function(m,i){return '<option value="'+i+'"'+(i===currentMonth?' selected':'')+'>'+m+'</option>';}).join("");
+  var ys=document.getElementById("year-select"),yh="";
+  for(var y=2023;y<=2027;y++) yh+='<option value="'+y+'"'+(y===currentYear?' selected':'')+'>'+y+'</option>';
+  ys.innerHTML=yh;
+}
+function updateRef(){
+  var nom=(getUserNom()||"XX").toUpperCase();
+  var ref="NDF-"+currentYear+"-"+String(currentMonth+1).padStart(2,"0")+"-"+nom;
+  document.getElementById("header-ref").textContent=ref;
+  return ref;
+}
+function changeMonth(delta){
+  currentMonth+=delta;
+  if(currentMonth<0){currentMonth=11;currentYear--;}
+  if(currentMonth>11){currentMonth=0;currentYear++;}
+  loadMonthData();
+  buildMonthSelectors(); updateRef(); renderAll();
+}
+function changeMonthSelect(){
+  currentMonth=parseInt(document.getElementById("month-select").value);
+  currentYear=parseInt(document.getElementById("year-select").value);
+  loadMonthData();
+  updateRef(); renderAll();
+}
+/* Charge les données du mois sélectionné (localStorage + reset fileId cache) */
+function loadMonthData(){
+  appData=loadLocal();
+  if(!appData.trips) appData.trips=[];
+  if(!appData.validations) appData.validations={};
+  /* Mettre à jour le fileId courant depuis le cache */
+  gdriveFileId=gdriveFileIdCache[getMonthCacheKey(currentYear,currentMonth)]||null;
+}
+
+function updateIKPreview(){
+  var km = calculatedKm || parseFloat(document.getElementById("trip-km-manual").value) || 0;
+  var prev = document.getElementById("ik-preview");
+  if(km > 0){
+    document.getElementById("preview-ik").textContent = calcIK(km).toFixed(2);
+    prev.style.display = "flex";
+  } else {
+    prev.style.display = "none";
+  }
+}
+
+var geocodeTimer=null;
+function onAddressChange(){
+  manualMode=false; document.getElementById("trip-km-manual").value="";
+  calculatedKm=0; document.getElementById("display-km").textContent="...";
+  if(geocodeTimer) clearTimeout(geocodeTimer);
+  geocodeTimer=setTimeout(computeDistance,800);
+}
+function onManualKm(){
+  var val=parseFloat(document.getElementById("trip-km-manual").value);
+  if(!isNaN(val)&&val>0){
+    manualMode=true;
+    calculatedKm=document.getElementById("toggle-ar").checked?val*2:val;
+    document.getElementById("display-km").textContent=Math.round(calculatedKm);
+  }
+  updateIKPreview();
+}
+function onToggleAR(){if(manualMode){onManualKm();return;}computeDistance();}
+
+function computeDistance(){
+  var from=document.getElementById("trip-from").value.trim();
+  var to=document.getElementById("trip-to").value.trim();
+  if(!from||!to||from.length<3||to.length<3) return;
+  document.getElementById("loading-km").style.display="block";
+  document.getElementById("display-km").textContent="...";
+  var url="https://nominatim.openstreetmap.org/search?format=json&q=";
+  Promise.all([
+    fetch(url+encodeURIComponent(from),{headers:{"Accept-Language":"fr"}}).then(function(r){return r.json();}),
+    fetch(url+encodeURIComponent(to),{headers:{"Accept-Language":"fr"}}).then(function(r){return r.json();})
+  ]).then(function(results){
+    var r1=results[0],r2=results[1];
+    if(!r1.length||!r2.length){document.getElementById("display-km").textContent="?";document.getElementById("loading-km").style.display="none";return;}
+    var km=haversine(parseFloat(r1[0].lat),parseFloat(r1[0].lon),parseFloat(r2[0].lat),parseFloat(r2[0].lon));
+    km=Math.round(km*1.3);
+    calculatedKm=document.getElementById("toggle-ar").checked?km*2:km;
+    document.getElementById("display-km").textContent=calculatedKm;
+    document.getElementById("loading-km").style.display="none";
+    updateIKPreview();
+  }).catch(function(){document.getElementById("display-km").textContent="?";document.getElementById("loading-km").style.display="none";});
+}
+function haversine(lat1,lon1,lat2,lon2){
+  var R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;
+  var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function addTrip(){
+  var date=document.getElementById("trip-date").value;
+  var from=document.getElementById("trip-from").value.trim();
+  var to=document.getElementById("trip-to").value.trim();
+  var motif=document.getElementById("trip-motif").value.trim();
+  var km=calculatedKm||parseFloat(document.getElementById("trip-km-manual").value)||0;
+  var peage=parseFloat(document.getElementById("trip-peage").value)||0;
+  var parking=parseFloat(document.getElementById("trip-parking").value)||0;
+  var ar=document.getElementById("toggle-ar").checked;
+  if(!date){alert("Veuillez saisir une date.");return;}
+  if(!from||!to){alert("Veuillez saisir le départ et l'arrivée.");return;}
+  if(!km||km<=0){alert("Veuillez calculer ou saisir les kilomètres.");return;}
+  if(!motif){alert("Veuillez saisir un motif.");return;}
+  var ik = Math.round(calcIK(km)*100)/100;
+  var tripDate=new Date(date);
+  appData.trips.push({id:Date.now(),date:date,from:from,to:to,motif:motif,km:Math.round(km),ar:ar,peage:peage,parking:parking,vehicle:"toyota",ik:ik,month:tripDate.getMonth(),year:tripDate.getFullYear()});
+  saveLocal(appData); renderAll();
+  ["trip-from","trip-to","trip-motif","trip-peage","trip-parking","trip-km-manual"].forEach(function(id){document.getElementById(id).value="";});
+  document.getElementById("toggle-ar").checked=false;
+  calculatedKm=0; manualMode=false;
+  document.getElementById("display-km").textContent="-";
+  document.getElementById("ik-preview").style.display="none";
+  if(gdriveToken) autoSyncToDrive();
+}
+function getAnnualKm(year){
+  return appData.trips.filter(function(t){return t.year===year;}).reduce(function(s,t){return s+t.km;},0);
+}
+function deleteTrip(id){
+  if(!confirm("Supprimer ce trajet ?")) return;
+  appData.trips=appData.trips.filter(function(t){return t.id!==id;});
+  saveLocal(appData); renderAll();
+  if(gdriveToken) autoSyncToDrive();
+}
+
+function getMonthTrips(){return appData.trips.filter(function(t){return t.month===currentMonth&&t.year===currentYear;});}
+function renderAll(){renderTable();renderStats();renderAnnual();renderValidation();updateDriveFilenameLabel();}
+function updateDriveFilenameLabel(){
+  var el=document.getElementById("gdrive-filename-label");
+  if(el) el.textContent=getDriveFilename(currentYear,currentMonth);
+}
+
+function renderTable(){
+  var trips=getMonthTrips().sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+  var tbody=document.getElementById("trips-table");
+  var empty=document.getElementById("empty-state");
+  if(!trips.length){tbody.innerHTML="";empty.style.display="block";return;}
+  empty.style.display="none";
+  var mo=["jan","fév","mar","avr","mai","jun","jul","aoû","sep","oct","nov","déc"];
+  var html=trips.map(function(t){
+    var d=new Date(t.date),dateStr=d.getDate()+" "+mo[d.getMonth()];
+    var annx=(t.peage||0)+(t.parking||0)>0?'<span class="annexe-tag">'+((t.peage||0)+(t.parking||0)).toFixed(2)+" EUR</span>":"—";
+    var arB=t.ar?'<span style="font-size:10px;background:#E1F5EE;color:#0F6E56;border-radius:10px;padding:1px 6px;margin-left:4px;">A/R</span>':"";
+    return '<tr><td class="td-mono" style="white-space:nowrap;">'+dateStr+'</td><td style="max-width:180px;"><div style="font-size:12px;font-weight:500;">'+t.from+'</div><div style="font-size:11px;color:var(--text-muted);">→ '+t.to+arB+'</div></td><td style="max-width:140px;font-size:12px;color:var(--text-muted);">'+t.motif+'</td><td class="td-mono">'+t.km+' km</td><td class="td-mono" style="color:var(--green);font-weight:500;">'+t.ik.toFixed(2)+' EUR</td><td>'+annx+'</td><td><button class="delete-btn" onclick="deleteTrip('+t.id+')" title="Supprimer">x</button></td></tr>';
+  }).join("");
+  var totKm=trips.reduce(function(s,t){return s+t.km;},0);
+  var totIK=trips.reduce(function(s,t){return s+t.ik;},0);
+  var totA=trips.reduce(function(s,t){return s+(t.peage||0)+(t.parking||0);},0);
+  html+='<tr style="background:var(--blue-light);"><td colspan="3" style="font-weight:500;padding:10px 12px;font-size:13px;">TOTAL DU MOIS</td><td class="td-mono" style="font-weight:500;">'+totKm+' km</td><td class="td-mono" style="font-weight:600;color:var(--blue-dark);">'+totIK.toFixed(2)+' EUR</td><td class="td-mono" style="color:var(--amber);">'+totA.toFixed(2)+' EUR</td><td></td></tr>';
+  tbody.innerHTML=html;
+}
+function renderStats(){
+  var trips=getMonthTrips();
+  var tKm=trips.reduce(function(s,t){return s+t.km;},0);
+  var tIK=trips.reduce(function(s,t){return s+t.ik;},0);
+  var tA=trips.reduce(function(s,t){return s+(t.peage||0)+(t.parking||0);},0);
+  var months=["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+  document.getElementById("stats-grid").innerHTML='<div class="stat-card"><div class="stat-label">Mois</div><div class="stat-value" style="font-size:16px;font-weight:600;">'+months[currentMonth]+' '+currentYear+'</div><div class="stat-sub">'+trips.length+' trajet'+(trips.length>1?'s':'')+'</div></div><div class="stat-card"><div class="stat-label">Kilomètres</div><div class="stat-value highlight">'+tKm.toLocaleString("fr-FR")+'</div><div class="stat-sub">km parcourus</div></div><div class="stat-card"><div class="stat-label">Indemnités IK</div><div class="stat-value green">'+tIK.toFixed(2)+' EUR</div><div class="stat-sub">0,470 EUR/km</div></div><div class="stat-card"><div class="stat-label">Total</div><div class="stat-value" style="color:var(--blue-dark);font-weight:600;">'+(tIK+tA).toFixed(2)+' EUR</div><div class="stat-sub">IK + annexes'+(tA>0?' (+'+tA.toFixed(2)+'EUR)':'')+'</div></div>';
+}
+function renderAnnual(){
+  var ykm=getAnnualKm(currentYear);
+  var yik=calcIK(ykm);
+  var pct=Math.min(100,Math.round(ykm/20000*100));
+  document.getElementById("annual-summary").innerHTML='<div class="annual-card"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span style="font-weight:500;color:var(--blue);">🚙 '+ykm.toLocaleString("fr-FR")+' km</span><span style="color:var(--text-muted);">'+yik.toFixed(2)+' EUR / an</span></div><div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">Taux fixe · 0,470 EUR/km · Barème DGFiP 2025</div><div class="progress-track"><div class="progress-fill" style="width:'+pct+'%"></div></div><div style="font-size:10px;color:var(--text-muted);margin-top:4px;">'+ykm.toLocaleString("fr-FR")+' km / 20 000 km de référence ('+pct+'%)</div></div>';
+}
+function renderValidation(){
+  var v=appData.validations[currentYear+"-"+currentMonth];
+  var bar=document.getElementById("validation-bar");
+  if(v){bar.style.display="block";document.getElementById("val-name-display").textContent=v.name;document.getElementById("val-date-display").textContent=new Date(v.date).toLocaleDateString("fr-FR");}
+  else bar.style.display="none";
+}
+
+function openValidation(){document.getElementById("modal-validation").classList.add("open");}
+function closeModal(){document.getElementById("modal-validation").classList.remove("open");}
+function saveValidation(){
+  var name=document.getElementById("val-name").value.trim(),date=document.getElementById("val-date").value;
+  if(!name){alert("Saisir le nom du validateur.");return;}
+  appData.validations[currentYear+"-"+currentMonth]={name:name,date:date};
+  saveLocal(appData); closeModal(); renderValidation();
+  if(gdriveToken) autoSyncToDrive();
+}
+
+function setSyncStatus(status,label){
+  document.getElementById("sync-dot").className="sync-dot "+status;
+  document.getElementById("sync-label").textContent=label;
+}
+/* ── DRIVE : gestion token + expiration + retry ── */
+function gdriveConnect(){
+  setSyncStatus("syncing","Connexion...");
+  /* Sauvegarder l'URL courante pour revenir après OAuth */
+  localStorage.setItem("bellysma_gdrive_return", window.location.href.split("#")[0].split("?")[0]);
+  var redirectUri=window.location.href.split("#")[0].split("?")[0];
+  var authUrl="https://accounts.google.com/o/oauth2/v2/auth?client_id="+GOOGLE_CLIENT_ID
+    +"&redirect_uri="+encodeURIComponent(redirectUri)
+    +"&response_type=token"
+    +"&scope="+encodeURIComponent(GOOGLE_SCOPES)
+    +"&prompt=consent"
+    +"&access_type=online";
+  window.location.href=authUrl;
+}
+function gdriveDisconnect(){
+  if(!confirm("Déconnecter Google Drive ? Les données locales sont conservées.")) return;
+  gdriveToken=null; gdriveFileId=null; gdriveUserEmail=""; gdriveFileIdCache={};
+  localStorage.removeItem("bellysma_gdrive_token");
+  localStorage.removeItem("bellysma_gdrive_token_ts");
+  localStorage.removeItem("bellysma_gdrive_email");
+  localStorage.removeItem("bellysma_gdrive_fileid_cache");
+  setSyncStatus("disconnected","Non connecté");
+  document.getElementById("gdrive-connected").style.display="none";
+  document.getElementById("gdrive-disconnected").style.display="block";
+  document.getElementById("btn-gdrive-header").style.display="";
+}
+/* Vérifie si le token est encore valide (durée de vie OAuth = 3600s) */
+function isTokenValid(){
+  if(!gdriveToken) return false;
+  var ts=parseInt(localStorage.getItem("bellysma_gdrive_token_ts")||"0");
+  return (Date.now()-ts) < 3500*1000; /* marge 100s */
+}
+/* Si token expiré : affiche un message et redirige vers reconnexion */
+function handleTokenExpired(){
+  gdriveToken=null;
+  localStorage.removeItem("bellysma_gdrive_token");
+  localStorage.removeItem("bellysma_gdrive_token_ts");
+  setSyncStatus("error","Token expiré");
+  document.getElementById("gdrive-connected").style.display="none";
+  document.getElementById("gdrive-disconnected").style.display="block";
+  document.getElementById("btn-gdrive-header").style.display="";
+  if(confirm("Votre session Google Drive a expiré.\nReconnecter maintenant ?")){
+    gdriveConnect();
+  }
+}
+function getGdriveUserEmail(token){
+  return fetch("https://www.googleapis.com/oauth2/v2/userinfo",{headers:{Authorization:"Bearer "+token}})
+    .then(function(r){
+      if(r.status===401) throw new Error("token_expired");
+      return r.json();
+    })
+    .then(function(d){return d.email||"";})
+    .catch(function(){return "";});
+}
+function findOrCreateFile(token, year, month){
+  year = year||currentYear; month = (month!=null?month:currentMonth);
+  var filename=getDriveFilename(year,month);
+  var cacheKey=getMonthCacheKey(year,month);
+  /* Si déjà en cache, retourner directement */
+  if(gdriveFileIdCache[cacheKey]) return Promise.resolve(gdriveFileIdCache[cacheKey]);
+  var q="name='"+filename+"' and trashed=false";
+  return fetch("https://www.googleapis.com/drive/v3/files?q="+encodeURIComponent(q)+"&spaces=drive&fields=files(id,name)",
+    {headers:{Authorization:"Bearer "+token}})
+    .then(function(r){
+      if(r.status===401) throw new Error("token_expired");
+      if(!r.ok) throw new Error("http_"+r.status);
+      return r.json();
+    })
+    .then(function(data){
+      if(data.files&&data.files.length>0){
+        gdriveFileIdCache[cacheKey]=data.files[0].id;
+        localStorage.setItem("bellysma_gdrive_fileid_cache",JSON.stringify(gdriveFileIdCache));
+        return data.files[0].id;
+      }
+      /* Créer le fichier s'il n'existe pas */
+      var meta={name:filename,mimeType:"application/json"};
+      var body=JSON.stringify({trips:[],validations:{},meta:{year:year,month:month,user:getUserNom(),prenom:getUserPrenom()}});
+      var form=new FormData();
+      form.append("metadata",new Blob([JSON.stringify(meta)],{type:"application/json"}));
+      form.append("file",new Blob([body],{type:"application/json"}));
+      return fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",
+        {method:"POST",headers:{Authorization:"Bearer "+token},body:form})
+        .then(function(r){
+          if(!r.ok) throw new Error("create_"+r.status);
+          return r.json();
+        })
+        .then(function(c){
+          gdriveFileIdCache[cacheKey]=c.id;
+          localStorage.setItem("bellysma_gdrive_fileid_cache",JSON.stringify(gdriveFileIdCache));
+          return c.id;
+        });
+    });
+}
+function syncToDrive(){
+  if(!gdriveToken){alert("Connectez d'abord Google Drive.");return;}
+  if(!isTokenValid()){handleTokenExpired();return;}
+  setSyncStatus("syncing","Sauvegarde...");
+  var chain=gdriveFileId?Promise.resolve(gdriveFileId):findOrCreateFile(gdriveToken,currentYear,currentMonth);
+  chain.then(function(fid){
+    gdriveFileId=fid;
+    gdriveFileIdCache[getMonthCacheKey(currentYear,currentMonth)]=fid;
+    localStorage.setItem("bellysma_gdrive_fileid_cache",JSON.stringify(gdriveFileIdCache));
+    return fetch("https://www.googleapis.com/upload/drive/v3/files/"+fid+"?uploadType=media",
+      {method:"PATCH",headers:{Authorization:"Bearer "+gdriveToken,"Content-Type":"application/json"},body:JSON.stringify(appData)});
+  }).then(function(r){
+    if(r.status===401){throw new Error("token_expired");}
+    if(!r.ok) throw new Error("http_"+r.status);
+    var now=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+    document.getElementById("last-sync-label").textContent="Sauvegardé à "+now+" · "+getDriveFilename(currentYear,currentMonth);
+    setSyncStatus("connected","Drive synchronisé");
+  }).catch(function(e){
+    if(e.message==="token_expired"){handleTokenExpired();}
+    else{setSyncStatus("error","Erreur sauvegarde");alert("Erreur Drive ("+e.message+"). Vérifiez votre connexion ou reconnectez-vous.");}
+  });
+}
+function syncFromDrive(){
+  if(!gdriveToken){alert("Connectez d'abord Google Drive.");return;}
+  if(!isTokenValid()){handleTokenExpired();return;}
+  setSyncStatus("syncing","Récupération...");
+  var chain=gdriveFileId?Promise.resolve(gdriveFileId):findOrCreateFile(gdriveToken,currentYear,currentMonth);
+  chain.then(function(fid){
+    gdriveFileId=fid;
+    gdriveFileIdCache[getMonthCacheKey(currentYear,currentMonth)]=fid;
+    localStorage.setItem("bellysma_gdrive_fileid_cache",JSON.stringify(gdriveFileIdCache));
+    return fetch("https://www.googleapis.com/drive/v3/files/"+fid+"?alt=media",
+      {headers:{Authorization:"Bearer "+gdriveToken}});
+  }).then(function(r){
+    if(r.status===401) throw new Error("token_expired");
+    if(!r.ok) throw new Error("http_"+r.status);
+    return r.json();
+  }).then(function(data){
+    if(data.trips){appData=data;saveLocal(appData);renderAll();}
+    var now=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+    document.getElementById("last-sync-label").textContent="Récupéré à "+now+" · "+getDriveFilename(currentYear,currentMonth);
+    setSyncStatus("connected","Drive synchronisé");
+  }).catch(function(e){
+    if(e.message==="token_expired"){handleTokenExpired();}
+    else{setSyncStatus("error","Erreur récupération");alert("Erreur Drive ("+e.message+"). Vérifiez votre connexion ou reconnectez-vous.");}
+  });
+}
+function autoSyncToDrive(){
+  if(!gdriveToken) return;
+  if(!isTokenValid()){
+    setSyncStatus("error","Token expiré — recliquez 🔗 Drive");
+    document.getElementById("btn-gdrive-header").style.display="";
+    return;
+  }
+  setSyncStatus("syncing","Auto-sync...");
+  var chain=gdriveFileId
+    ? Promise.resolve(gdriveFileId)
+    : findOrCreateFile(gdriveToken,currentYear,currentMonth).then(function(fid){
+        gdriveFileId=fid;
+        gdriveFileIdCache[getMonthCacheKey(currentYear,currentMonth)]=fid;
+        localStorage.setItem("bellysma_gdrive_fileid_cache",JSON.stringify(gdriveFileIdCache));
+        return fid;
+      });
+  chain.then(function(fid){
+    return fetch("https://www.googleapis.com/upload/drive/v3/files/"+fid+"?uploadType=media",
+      {method:"PATCH",headers:{Authorization:"Bearer "+gdriveToken,"Content-Type":"application/json"},body:JSON.stringify(appData)});
+  }).then(function(r){
+    if(r.status===401) throw new Error("token_expired");
+    if(!r.ok) throw new Error("http_"+r.status);
+    var now=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+    document.getElementById("last-sync-label").textContent="Auto-sync : "+now+" · "+getDriveFilename(currentYear,currentMonth);
+    setSyncStatus("connected","Drive synchronisé");
+  }).catch(function(e){
+    if(e.message==="token_expired"){
+      setSyncStatus("error","Token expiré");
+      document.getElementById("btn-gdrive-header").style.display="";
+    } else {
+      setSyncStatus("error","Erreur sync");
+    }
+  });
+}
+function handleOAuthCallback(){
+  var hash=window.location.hash;
+  if(!hash||hash.indexOf("access_token")===-1) return;
+  var params=new URLSearchParams(hash.replace("#",""));
+  var token=params.get("access_token");
+  if(!token) return;
+  gdriveToken=token;
+  localStorage.setItem("bellysma_gdrive_token",token);
+  localStorage.setItem("bellysma_gdrive_token_ts", Date.now().toString());
+  history.replaceState(null,null,window.location.pathname);
+  if(!appData){ appData=loadLocal(); if(!appData.trips) appData.trips=[]; if(!appData.validations) appData.validations={}; }
+  buildMonthSelectors(); updateRef(); renderAll(); updateHeaderUser(); refreshVehicleDisplay();
+  setSyncStatus("syncing","Connexion...");
+  getGdriveUserEmail(token).then(function(email){
+    gdriveUserEmail=email; localStorage.setItem("bellysma_gdrive_email",email);
+    return findOrCreateFile(token,currentYear,currentMonth);
+  }).then(function(fid){
+    gdriveFileId=fid;
+    gdriveFileIdCache[getMonthCacheKey(currentYear,currentMonth)]=fid;
+    localStorage.setItem("bellysma_gdrive_fileid_cache",JSON.stringify(gdriveFileIdCache));
+    /* Mettre à jour UI Drive sidebar */
+    document.getElementById("gdrive-connected").style.display="block";
+    document.getElementById("gdrive-disconnected").style.display="none";
+    document.getElementById("gdrive-email-display").textContent=gdriveUserEmail;
+    document.getElementById("btn-gdrive-header").style.display="none";
+    setSyncStatus("connected","Drive connecté");
+    /* Si le wizard est ouvert (retour OAuth depuis étape 3) → afficher connecté dans wizard */
+    var wizardOpen = document.getElementById("wizard-overlay").classList.contains("open");
+    if(wizardOpen){
+      document.getElementById("w-drive-disconnected").style.display="none";
+      document.getElementById("w-drive-connected").style.display="block";
+      document.getElementById("w-drive-email").textContent=gdriveUserEmail;
+      _wizardDriveConnected=true;
+    } else {
+      showNdfChoiceModal();
+    }
+  }).catch(function(e){
+    setSyncStatus("error","Erreur connexion");
+    alert("Impossible de se connecter à Google Drive ("+e.message+"). Réessayez.");
+  });
+}
+
+/* ══════════════════════════════════════════
+   WIZARD ONBOARDING — logique complète
+   ══════════════════════════════════════════ */
+var _wizardStep = 1;
+var _wizardCallback = null;
+var _wizardDriveConnected = false;
+
+/* Accesseurs véhicule utilisateur */
+function getUserVehicle(){
+  try{ return JSON.parse(localStorage.getItem("bellysma_user_vehicle")||"null"); }catch(e){ return null; }
+}
+function isVehicleConfigured(){ return !!getUserVehicle(); }
+function isFullyConfigured(){ return isUserConfigured() && isVehicleConfigured(); }
+
+function showWizard(callback){
+  _wizardCallback = callback || null;
+  _wizardStep = 1;
+  _wizardDriveConnected = false;
+  /* Pré-remplir les champs si déjà configuré (modification de profil) */
+  document.getElementById("w-prenom").value = getUserPrenom();
+  document.getElementById("w-nom").value = getUserNom();
+  document.getElementById("w-poste").value = localStorage.getItem("bellysma_user_poste")||"";
+  var veh = getUserVehicle();
+  if(veh){
+    document.getElementById("w-v-marque").value = veh.marque||"";
+    document.getElementById("w-v-modele").value = veh.modele||"";
+    document.getElementById("w-v-immat").value = veh.immat||"";
+    document.getElementById("w-v-cv").value = veh.cv||"7";
+    document.getElementById("w-v-carburant").value = veh.carburant||"Thermique (GO)";
+  }
+  wizardGotoStep(1);
+  document.getElementById("wizard-overlay").classList.add("open");
+  wizardUpdatePreview();
+  wizardUpdateVehiclePreview();
+}
+
+function wizardGotoStep(n){
+  _wizardStep = n;
+  /* Afficher/masquer les corps d'étapes */
+  [1,2,3].forEach(function(i){
+    document.getElementById("wizard-step-"+i).style.display = (i===n?"block":"none");
+  });
+  /* Titres et sous-titres */
+  var titles = ["","Votre identité","Votre véhicule","Synchronisation Drive"];
+  var subs   = ["","Ces informations figureront sur vos notes de frais.","Un seul véhicule, mémorisé pour toutes vos NDF.","Optionnel — retrouvez vos NDF sur tous vos appareils."];
+  document.getElementById("wizard-title").textContent = titles[n];
+  document.getElementById("wizard-subtitle").textContent = subs[n];
+  /* Points de progression */
+  [1,2,3].forEach(function(i){
+    var dot = document.getElementById("wdot-"+i);
+    dot.className = "wizard-step-dot" + (i===n?" active":(i<n?" done":""));
+  });
+  /* Boutons footer */
+  document.getElementById("wizard-btn-back").style.display = (n===1?"none":"");
+  var btnNext = document.getElementById("wizard-btn-next");
+  btnNext.textContent = (n===3)?"Terminer ✓":"Continuer →";
+  /* Preview filename sur étape 3 */
+  if(n===3){
+    var fn = getDriveFilename(currentYear||new Date().getFullYear(), currentMonth!=null?currentMonth:new Date().getMonth());
+    var el = document.getElementById("w-preview-filename");
+    if(el) el.textContent = fn;
+  }
+}
+
+function wizardUpdatePreview(){
+  var nom = (document.getElementById("w-nom").value||"NOM").toUpperCase().replace(/\s+/g,"_");
+  var now = new Date();
+  var y = currentYear||now.getFullYear(), m = currentMonth!=null?currentMonth:now.getMonth();
+  document.getElementById("w-preview-ref").textContent =
+    "NDF-"+y+"-"+String(m+1).padStart(2,"0")+"-"+nom+".json";
+}
+
+function wizardUpdateVehiclePreview(){
+  var marque = document.getElementById("w-v-marque").value||"—";
+  var modele = document.getElementById("w-v-modele").value||"";
+  var cv     = document.getElementById("w-v-cv").value;
+  var cvLabel = cv ? cv+" CV" : "— CV";
+  document.getElementById("w-preview-vehicle").textContent =
+    "🚗 "+marque+" "+modele+" · "+cvLabel+" · 0,470 €/km";
+}
+
+function wizardNext(){
+  if(_wizardStep===1){
+    /* Validation étape 1 */
+    var prenom = document.getElementById("w-prenom").value.trim();
+    var nom    = document.getElementById("w-nom").value.trim().toUpperCase();
+    var poste  = document.getElementById("w-poste").value.trim();
+    if(!prenom||!nom){ alert("Veuillez saisir votre prénom et votre nom."); return; }
+    localStorage.setItem("bellysma_user_prenom", prenom);
+    localStorage.setItem("bellysma_user_nom", nom);
+    if(poste) localStorage.setItem("bellysma_user_poste", poste);
+    wizardGotoStep(2);
+  } else if(_wizardStep===2){
+    /* Validation étape 2 */
+    var marque   = document.getElementById("w-v-marque").value.trim();
+    var modele   = document.getElementById("w-v-modele").value.trim();
+    var immat    = document.getElementById("w-v-immat").value.trim().toUpperCase();
+    var cv       = document.getElementById("w-v-cv").value;
+    var carburant= document.getElementById("w-v-carburant").value;
+    if(!marque||!modele){ alert("Veuillez saisir la marque et le modèle."); return; }
+    if(!cv){ alert("Veuillez sélectionner la puissance fiscale."); return; }
+    var veh = {marque:marque, modele:modele, immat:immat, cv:cv, carburant:carburant, taux:0.470};
+    localStorage.setItem("bellysma_user_vehicle", JSON.stringify(veh));
+    wizardGotoStep(3);
+  } else if(_wizardStep===3){
+    wizardFinish(true);
+  }
+}
+
+function wizardBack(){
+  if(_wizardStep>1) wizardGotoStep(_wizardStep-1);
+}
+
+function wizardConnectDrive(){
+  /* Sauvegarder qu'on est dans le wizard pour revenir dessus après OAuth */
+  localStorage.setItem("bellysma_wizard_pending","1");
+  gdriveConnect();
+}
+
+function wizardFinish(driveSkipped){
+  document.getElementById("wizard-overlay").classList.remove("open");
+  /* Mettre à jour l'interface avec les nouvelles données */
+  updateRef(); updateHeaderUser(); refreshVehicleDisplay();
+  /* Réinitialiser appData pour ce mois */
+  appData = loadLocal();
+  if(!appData.trips) appData.trips=[];
+  if(!appData.validations) appData.validations={};
+  renderAll();
+  if(_wizardCallback){ _wizardCallback(); _wizardCallback=null; }
+}
+
+/* Appelé depuis le panneau Drive (dans la sidebar) pour modifier le profil */
+function openProfileEditor(){
+  showWizard(null);
+}
+
+/* Accesseur poste */
+function getUserPoste(){ return localStorage.getItem("bellysma_user_poste")||"Chargé de clientèle"; }
+
+/* Met à jour le bloc véhicule dans le formulaire de saisie */
+function refreshVehicleDisplay(){
+  var veh = getUserVehicle();
+  if(!veh) return;
+  var el = document.querySelector(".vehicle-info");
+  if(el){
+    el.querySelector(".v-detail").textContent = veh.marque+" "+veh.modele+" — "+veh.cv+" CV · "+veh.carburant;
+    el.querySelector(".v-sub").textContent    = "Taux fixe : 0,470 EUR/km · Barème DGFiP 2025";
+  }
+  /* Titre panneau annuel */
+  var ph = document.querySelector(".panel-header .ico + span, .panel-header");
+  var annualHeader = document.getElementById("annual-panel-header");
+  if(annualHeader) annualHeader.textContent = "📊 Suivi annuel — "+veh.marque+" "+veh.modele;
+}
+
+/* ══ MODAL CHOIX NDF AU DÉMARRAGE ══ */
+function showNdfChoiceModal(){
+  /* Afficher le nom du fichier concerné */
+  var fn=getDriveFilename(currentYear,currentMonth);
+  document.getElementById("ndf-choice-filename").textContent=fn;
+  document.getElementById("modal-ndf-choice").classList.add("open");
+}
+function ndfChoiceResume(){
+  document.getElementById("modal-ndf-choice").classList.remove("open");
+  syncFromDrive();
+}
+function ndfChoiceNew(){
+  document.getElementById("modal-ndf-choice").classList.remove("open");
+  /* Repartir d'une NDF vierge pour ce mois — ne pas écraser Drive avant ajout */
+  appData={trips:[],validations:{}};
+  saveLocal(appData);
+  renderAll();
+  setSyncStatus("connected","Drive prêt — nouvelle NDF");
+}
+
+function exportPDF(){
+  var jsPDF=window.jspdf.jsPDF;
+  var doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
+  var PAGE_H=297; /* hauteur A4 en mm */
+  var FOOTER_H=12; /* hauteur réservée au pied de page */
+  var MARGIN_BOTTOM=PAGE_H-FOOTER_H; /* limite de contenu = 285 */
+  var months=["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+  var ref=updateRef();
+  var trips=getMonthTrips().sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+
+  /* ── Fonction utilitaire : ajoute le pied de page sur TOUTES les pages ── */
+  function addFooters(){
+    var totalPages=doc.getNumberOfPages();
+    for(var p=1;p<=totalPages;p++){
+      doc.setPage(p);
+      doc.setFillColor(12,68,124);
+      doc.rect(0,PAGE_H-FOOTER_H,210,FOOTER_H,"F");
+      doc.setTextColor(255,255,255);
+      doc.setFont("helvetica","normal");
+      doc.setFontSize(7);
+      doc.text("Bellysma Assurances - Note de frais kilometriques - Bareme DGFiP 2025 - Taux 0,470 EUR/km",14,PAGE_H-4);
+      doc.text(ref+"  |  Page "+p+"/"+totalPages,196,PAGE_H-4,{align:"right"});
+    }
+  }
+
+  /* ── Vérifie si le contenu suivant tient sur la page courante ── */
+  function needsNewPage(currentY, blockHeight){
+    return (currentY + blockHeight) > MARGIN_BOTTOM;
+  }
+
+  /* ══ EN-TÊTE (page 1) ══ */
+  doc.setFillColor(12,68,124);doc.rect(0,0,210,32,"F");
+  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(16);
+  doc.text("NOTE DE FRAIS KILOMETRIQUES",14,13);
+  doc.setFont("helvetica","normal");doc.setFontSize(9);
+  doc.text("Bellysma Assurances",14,20);
+  doc.text("Ref. : "+ref,14,26);
+  doc.text("Periode : "+months[currentMonth]+" "+currentYear,100,20);
+  doc.text("Edite le : "+new Date().toLocaleDateString("fr-FR"),100,26);
+
+  /* ══ BLOC IDENTITÉ ══ */
+  doc.setTextColor(40,40,40);
+  doc.setFont("helvetica","bold");doc.setFontSize(10);
+  doc.text("Collaborateur",14,42);
+  doc.setDrawColor(24,95,165);doc.setLineWidth(0.5);doc.line(14,44,90,44);
+  doc.setFont("helvetica","normal");doc.setFontSize(9);
+  doc.text(getUserPrenom()+" "+getUserNom(),14,50);
+  doc.text(getUserPoste().normalize("NFD").replace(/[\u0300-\u036f]/g,""),14,55);
+  doc.text("Bellysma Assurances",14,60);
+
+  doc.setFont("helvetica","bold");doc.setFontSize(10);
+  doc.text("Vehicule utilise",110,42);
+  doc.line(110,44,196,44);
+  doc.setFont("helvetica","normal");doc.setFontSize(9);
+  var veh=getUserVehicle()||{marque:"Toyota",modele:"RAV4",cv:"9",carburant:"Thermique (GO)",taux:0.470};
+  doc.text(veh.marque+" "+veh.modele+" - "+veh.cv+" CV - "+veh.carburant,110,50);
+  if(veh.immat) doc.text("Immat. : "+veh.immat,110,55);
+  doc.text("Taux fixe : "+veh.taux.toFixed(3).replace(".",",")+" EUR/km",110,veh.immat?61:56);
+  doc.text("Bareme DGFiP 2025",110,veh.immat?67:62);
+
+  /* ══ TABLEAU DES TRAJETS (gestion multi-pages via didDrawPage) ══ */
+  var tKm=trips.reduce(function(s,t){return s+t.km;},0);
+  var tIK=trips.reduce(function(s,t){return s+t.ik;},0);
+  var tA=trips.reduce(function(s,t){return s+(t.peage||0)+(t.parking||0);},0);
+  var rows=trips.map(function(t){
+    var annx=(t.peage||0)+(t.parking||0)>0?((t.peage||0)+(t.parking||0)).toFixed(2)+" EUR":"--";
+    return [
+      new Date(t.date).toLocaleDateString("fr-FR"),
+      t.from+" > "+t.to+(t.ar?" (A/R)":""),
+      t.motif,
+      t.km+" km",
+      t.ik.toFixed(2)+" EUR",
+      annx
+    ];
+  });
+  rows.push(["","","TOTAL",tKm+" km",tIK.toFixed(2)+" EUR",tA.toFixed(2)+" EUR"]);
+
+  doc.autoTable({
+    startY:70,
+    margin:{bottom:FOOTER_H+4},  /* réserve la zone pied de page */
+    head:[["Date","Trajet","Motif","Km","Indemnite IK","Peage/Park."]],
+    body:rows,
+    styles:{font:"helvetica",fontSize:8,cellPadding:3,overflow:"linebreak"},
+    headStyles:{fillColor:[24,95,165],textColor:255,fontStyle:"bold"},
+    alternateRowStyles:{fillColor:[245,248,252]},
+    columnStyles:{
+      0:{cellWidth:20},
+      1:{cellWidth:62},
+      2:{cellWidth:52},
+      3:{cellWidth:14},
+      4:{cellWidth:22},
+      5:{cellWidth:17}
+    },
+    /* Ligne TOTAL en gras fond bleu clair */
+    willDrawCell:function(data){
+      if(data.row.index===rows.length-1&&data.row.section==="body"){
+        doc.setFillColor(214,232,248);
+        doc.setFont("helvetica","bold");
+      }
+    }
+  });
+
+  /* ══ RÉCAPITULATIF ══ */
+  var fY=doc.lastAutoTable.finalY+8;
+  /* Si le bloc récap (32mm) + suivi (20mm) + signatures (30mm) ne tient pas → nouvelle page */
+  if(needsNewPage(fY, 82)){
+    doc.addPage();
+    fY=20;
+  }
+  doc.setFillColor(230,241,251);
+  doc.rect(14,fY,182,32,"F");
+  doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(12,68,124);
+  doc.text("RECAPITULATIF",18,fY+8);
+  doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(40,40,40);
+  var vehPdf=getUserVehicle()||{taux:0.470};
+  doc.text("Indemnites kilometriques ("+tKm+" km x "+vehPdf.taux.toFixed(3).replace(".",",")+" EUR) :",18,fY+16);
+  doc.text(tIK.toFixed(2)+" EUR",190,fY+16,{align:"right"});
+  doc.text("Frais annexes (peages / parkings) :",18,fY+22);
+  doc.text(tA.toFixed(2)+" EUR",190,fY+22,{align:"right"});
+  doc.setDrawColor(24,95,165);doc.setLineWidth(0.3);
+  doc.line(14,fY+25,196,fY+25);
+  doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(12,68,124);
+  doc.text("TOTAL A REMBOURSER :",18,fY+31);
+  doc.text((tIK+tA).toFixed(2)+" EUR",190,fY+31,{align:"right"});
+
+  /* ══ SIGNATURES ══ */
+  var sigY=fY+42;
+  if(needsNewPage(sigY,30)){
+    doc.addPage();
+    sigY=20;
+  }
+  var v=appData.validations[currentYear+"-"+currentMonth];
+  doc.setDrawColor(180,180,180);doc.setLineWidth(0.3);
+  doc.line(14,sigY,90,sigY);
+  doc.line(120,sigY,196,sigY);
+  doc.setFontSize(8);doc.setTextColor(120,120,120);
+  doc.text("Signature du collaborateur",14,sigY+5);
+  doc.text("Valide par",120,sigY+5);
+  if(v){
+    doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(40,40,40);
+    doc.text(v.name,120,sigY+12);
+    doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(120,120,120);
+    doc.text("Le "+new Date(v.date).toLocaleDateString("fr-FR"),120,sigY+17);
+  }
+
+  /* ══ PIED DE PAGE SUR TOUTES LES PAGES (appelé en dernier) ══ */
+  addFooters();
+
+  doc.save(ref+".pdf");
+}
+</script>
+</body>
+</html>
